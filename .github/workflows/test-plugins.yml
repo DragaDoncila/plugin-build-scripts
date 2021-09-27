@@ -10,9 +10,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Clone Plugin Repositories
-        run: |
-          python code/clone_all_repos.py
       - name: List Files
         run: |
           ls ${{ github.workspace }}
+      - name: Clone Plugin Repositories
+        run: |
+          python code/clone_all_repos.py
