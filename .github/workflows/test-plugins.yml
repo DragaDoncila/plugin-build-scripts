@@ -20,7 +20,7 @@ jobs:
       - name: Cache Repositories For Testing
         uses: actions/cache@v2
         with:
-          path: ~/repositories
+          path: ./repositories
           key: repositories
 
   Test-Repositories:
@@ -30,8 +30,8 @@ jobs:
       - name: Restore Cached Repositories
         uses: actions/cache@v2
         with:
-          path: ~/repositories
+          path: ./repositories
           key: repositories
       - name: List Files
         run: |
-          ls ~/repositories/
+          ls ${{ github.workspace }}
