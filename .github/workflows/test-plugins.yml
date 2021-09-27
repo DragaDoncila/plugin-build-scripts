@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install tox requests GitPython tqdm
+          pip install tox requests GitPython tqdm pandas pkginfo
       - name: List Files
         run: |
           ls ${{ github.workspace }}
