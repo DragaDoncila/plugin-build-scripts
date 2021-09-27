@@ -17,10 +17,21 @@ jobs:
       - name: Clone Plugin Repositories
         run: |
           python clone_all_repos.py
+      - name: Cache Repositories For Testing
+        uses: actions/cache@v2
+        with:
+          path: ~/repositories
+          key: repositories
+
   Test-Repositories:
     runs-on: ubuntu-latest
     needs: Clone-Repositories
     steps:
+      - name: Restore Cached Repositories
+        uses: actions/cache@v2
+        with:
+          path: ~/repositories
+          key: repositories
       - name: List Files
         run: |
-          ls ${{ github.workspace }}
+          ls ~/repositories/
