@@ -7,7 +7,7 @@ jobs:
       - name: Check Out Repository
         uses: actions/checkout@v2
       - name: Set Up Python
-        uses: actions/setup-python@
+        uses: actions/setup-python@v2
         with:
           python-version: 3.8
       - name: Clone Plugin Repositories
