@@ -3,7 +3,6 @@ import json
 import os
 from time import time
 from git import Repo
-import pandas as pd
 import pkginfo
 import requests
 import subprocess
@@ -225,9 +224,9 @@ def clone_all(dest_pth, out_csv_pth=None):
             pass_fail.append(1)
         else:
             pass_fail.append(0)
-
-    clone_df = pd.DataFrame({'plugin': all_plugins, 'clone_success': pass_fail, 'clone_time': clone_time})
     if out_csv_pth:
+        import pandas as pd
+        clone_df = pd.DataFrame({'plugin': all_plugins, 'clone_success': pass_fail, 'clone_time': clone_time})
         clone_df.to_csv(out_csv_pth)
 
 def build_all(plugin_dir, dest_dir, out_csv_pth):
