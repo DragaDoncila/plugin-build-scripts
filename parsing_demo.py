@@ -10,8 +10,8 @@ root_pth = '/Users/ddoncilapop/CZI/plugins_demo/'
 repo_pth = os.path.join(root_pth, 'repositories/')
 pkg_pth = os.path.join(root_pth, 'packages/')
 
-# clone_all(repo_pth, clone_csv_pth)
-# build_all(repo_pth, pkg_pth, build_csv_pth)
+clone_all(repo_pth, clone_csv_pth)
+build_all(repo_pth, pkg_pth, build_csv_pth)
 read_all(pkg_pth)
 
 df_clone = pd.read_csv(clone_csv_pth)

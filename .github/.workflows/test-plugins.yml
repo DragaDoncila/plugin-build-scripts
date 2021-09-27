@@ -1,0 +1,18 @@
+name: Test Plugins
+on: workflow_dispatch
+jobs:
+  Clone-Repositories:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+      - name: Set Up Python
+        uses: actions/setup-python@
+        with:
+          python-version: 3.8
+      - name: Clone Plugin Repositories
+        run: |
+          python code/clone_all_repos.py
+      - name: List Files
+        run: |
+          ls ${{ github.workspace }}

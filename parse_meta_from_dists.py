@@ -4,6 +4,7 @@ import os
 from time import time
 from git import Repo
 import pandas as pd
+import pkginfo
 import requests
 import subprocess
 import sys
@@ -183,8 +184,20 @@ def read_pkg_info(pkg_pth):
             meta[field] = getattr(pkg_info, attr)
     return meta
 
+def read_extra_requirements(pkg_info):
+    all_requirements = pkg_info.requires_dist
+    extra_requirements = defaultdict(lambda: [])
 
-def clone_all(dest_pth, out_csv_pth):
+    extra_str = ' ; extra == '
+
+    for req in all_requirements:
+        if extra_str in req:
+            package, extra_field = tuple(req.split(extra_str))
+            extra_requirements[extra_field].append(package)
+    
+    return extra_requirements
+
+def clone_all(dest_pth, out_csv_pth=None):
     """Clones repositories of all currently listed napari hub plugins.
 
     Queries napari hub API for all currently listed plugins and attempts
@@ -196,8 +209,8 @@ def clone_all(dest_pth, out_csv_pth):
     ----------
     dest_pth : str or Path-like
         directory to clone repositories into
-    out_csv_pth: str or Path-like
-        path to save clone times to
+    out_csv_pth: Optional str or Path-like
+        path to save clone times to, by default None
     """
     clone_time = []
     pass_fail = []
@@ -214,7 +227,8 @@ def clone_all(dest_pth, out_csv_pth):
             pass_fail.append(0)
 
     clone_df = pd.DataFrame({'plugin': all_plugins, 'clone_success': pass_fail, 'clone_time': clone_time})
-    clone_df.to_csv(out_csv_pth)
+    if out_csv_pth:
+        clone_df.to_csv(out_csv_pth)
 
 def build_all(plugin_dir, dest_dir, out_csv_pth):
     """Builds distribution in dest_dir for all plugins in plugin_dir.
@@ -280,19 +294,16 @@ def read_all(pkg_pths):
     wheel_meta = {}
     for whl_pth in tqdm(all_wheels, 'Reading Metadata'):
         meta = read_pkg_info(whl_pth)
-        meta_str = format_meta_str(meta)
-        wheel_meta[meta['name']] = meta_str
+        wheel_meta[meta['name']] = meta
 
     src_meta = {}
     if all_srcs:
         for src_pth in tqdm(all_srcs):
             meta = read_pkg_info(src_pth)
-            meta_str = format_meta_str(meta)
             plugin_name = meta['name']
             # src dists seem to build with underscores not dashes. Replace them for now
             if '_' in plugin_name:
                 plugin_name = '-'.join(plugin_name.split('_'))
-            src_meta[plugin_name] = meta_str   
+            src_meta[plugin_name] = meta   
 
-    print()
-    print(wheel_meta)
+    return wheel_meta
