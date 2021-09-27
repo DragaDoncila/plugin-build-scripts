@@ -14,9 +14,13 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install tox requests GitPython tqdm pandas pkginfo
-      - name: List Files
-        run: |
-          ls ${{ github.workspace }}
       - name: Clone Plugin Repositories
         run: |
           python clone_all_repos.py
+  Test-Repositories:
+    runs-on: ubuntu-latest
+    needs: Clone-Repositories
+    steps:
+      - name: List Files
+        run: |
+          ls ${{ github.workspace }}
