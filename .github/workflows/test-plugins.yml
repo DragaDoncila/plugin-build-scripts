@@ -49,8 +49,12 @@ jobs:
         run: |
           echo "::set-output name=repo-path::$(python clone_plugin_repo.py ${{ matrix.plugin }})"
       # test repo of plugin (step into working directory and tox)
-      - name: Test With Tox
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+      - name: Test with tox
+        working-directory: ${{ steps.clone-repo.outputs.repo-path }}
         run: tox
         env:
-          PLATFORM: ${{ runner.os }}
-          
+          PLATFORM: ubuntu-latest
