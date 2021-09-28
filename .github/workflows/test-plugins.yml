@@ -28,6 +28,7 @@ jobs:
     strategy:
       matrix:
         plugin: ${{ fromJson(needs.List-All-Plugins.outputs.matrix) }}
+      fail-fast: false
     steps:
       # checkout repo 
       - name: Check Out Repository
