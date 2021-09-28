@@ -22,16 +22,24 @@ jobs:
         with:
           path: ./repositories
           key: repositories
-
-  # Test-Repositories:
-  #   runs-on: ubuntu-latest
-  #   needs: Clone-Repositories
-  #   steps:
-  #     - name: Restore Cached Repositories
-  #       uses: actions/cache@v2
-  #       with:
-  #         path: ./repositories
-  #         key: repositories
-  #     - name: List Files
-  #       run: |
-  #         ls ${{ github.workspace }}/repositories
+      - name: Save Repo Paths
+        id: repo-paths
+        run: echo "::set-output name=matrix::$(cat ./repo_pths.json)"
+    outputs:
+      matrix: ${{ steps.repo-paths.outputs.matrix }}
+  Test-Repositories:
+    needs: Clone-Repositories
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: ${{ fromJson(needs.Clone-Repositories.outputs.matrix) }}
+    steps:
+      - name: Restore Cached Repositories
+        uses: actions/cache@v2
+        with:
+          path: ./repositories
+          key: repositories
+      - name: List Files
+        working-directory: ${{ matrix.plugin }}
+        run: |
+          ls .
