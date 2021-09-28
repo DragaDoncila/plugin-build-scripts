@@ -48,17 +48,25 @@ jobs:
         id: clone-repo
         run: |
           echo "::set-output name=repo-path::$(python clone_plugin_repo.py ${{ matrix.plugin }})"
+      - name: "Check tox.ini File Exists"
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: format('{0}/{1}', ${{ steps.clone-repo.outputs.repo-path, 'tox.ini')
       - name: Install Linux libraries
+        if: steps.check_files.outputs.files_exists == 'true'
         run: |
           sudo apt-get install -y libdbus-1-3 libxkbcommon-x11-0 libxcb-icccm4 \
             libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
             libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
       # test repo of plugin (step into working directory and tox)
       - name: Install dependencies
+        if: steps.check_files.outputs.files_exists == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install tox tox-gh-actions
       - name: Test with tox
+        if: steps.check_files.outputs.files_exists == 'true'
         working-directory: ${{ steps.clone-repo.outputs.repo-path }}
         run: tox
         env:
