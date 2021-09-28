@@ -46,8 +46,8 @@ jobs:
         id: clone-repo
         run: |
           echo "::set-output name=repo-path::$(python clone_plugin_repo.py ${{ matrix.plugin }})"
+      # test repo of plugin (step into working directory and tox)
       - name: List Files
         working-directory: ${{ steps.clone-repo.outputs.repo-path }}
         run: |
-          ls .
-      # test repo of plugin (step into working directory and tox)
+          tox .
