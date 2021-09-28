@@ -3,7 +3,6 @@ import json
 import os
 from time import time
 from git import Repo
-import pkginfo
 import requests
 import subprocess
 import sys
@@ -41,12 +40,11 @@ def clone_repo(plugin_name, dest_dir, code_url=None):
     
     if code_url:
         try:
-            Repo.clone_from(code_url, os.path.join(dest_dir, plugin_name))
+            repo = Repo.clone_from(code_url, os.path.join(dest_dir, plugin_name))
         except Exception as e:
             # print(f"Unable to clone plugin {plugin_name} from {code_url}:\n")
             return None
-        #TODO: this can be incorrect if the repository name is different to the plugin name
-        return os.path.join(dest_dir, plugin_name)
+        return repo.working_tree_dir
 
 def build_dist(pth, dest_dir):
     """Builds wheel for package found at `pth` if possible, otherwise source dist.
@@ -215,6 +213,7 @@ def clone_all(dest_pth, out_csv_pth=None):
     pass_fail = []
 
     all_plugins = sorted(list(json.loads(requests.get(PLUGINS_URL).text.strip()).keys()))
+    cloned_repos = []
     for plugin in tqdm(all_plugins, desc='Cloning Repositories'):
         start = time()
         dest_dir = clone_repo(plugin, dest_pth)
@@ -222,12 +221,14 @@ def clone_all(dest_pth, out_csv_pth=None):
         clone_time.append(duration)
         if dest_dir:
             pass_fail.append(1)
+            cloned_repos.append(dest_dir)
         else:
             pass_fail.append(0)
     if out_csv_pth:
         import pandas as pd
         clone_df = pd.DataFrame({'plugin': all_plugins, 'clone_success': pass_fail, 'clone_time': clone_time})
         clone_df.to_csv(out_csv_pth)
+    return cloned_repos
 
 def build_all(plugin_dir, dest_dir, out_csv_pth):
     """Builds distribution in dest_dir for all plugins in plugin_dir.
