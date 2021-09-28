@@ -28,6 +28,7 @@ jobs:
     strategy:
       matrix:
         plugin: ${{ fromJson(needs.List-All-Plugins.outputs.matrix) }}
+        python-version: [3.7, 3.8, 3.9]
       fail-fast: false
     steps:
       # checkout repo 
@@ -36,7 +37,7 @@ jobs:
       - name: Set Up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
       # setup python with dependencies
       - name: Install dependencies
         run: |
@@ -48,7 +49,8 @@ jobs:
         run: |
           echo "::set-output name=repo-path::$(python clone_plugin_repo.py ${{ matrix.plugin }})"
       # test repo of plugin (step into working directory and tox)
-      - name: List Files
-        working-directory: ${{ steps.clone-repo.outputs.repo-path }}
-        run: |
-          tox .
+      - name: Test With Tox
+        run: tox
+        env:
+          PLATFORM: ${{ runner.os }}
+          
