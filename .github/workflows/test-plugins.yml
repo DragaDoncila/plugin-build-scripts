@@ -1,7 +1,7 @@
 name: Test Plugins
 on: workflow_dispatch
 jobs:
-  Clone-Repositories:
+  List-All-Plugins:
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repository
@@ -14,32 +14,40 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install tox requests GitPython tqdm pandas pkginfo
-      - name: Clone Plugin Repositories
+      - name: Request All Plugins
         run: |
-          python clone_all_repos.py
-      - name: Cache Repositories For Testing
-        uses: actions/cache@v2
-        with:
-          path: ./repositories
-          key: repositories
-      - name: Save Repo Paths
-        id: repo-paths
-        run: echo "::set-output name=matrix::$(cat ./repo_pths.json)"
+          python dump_all_plugins.py
+      - name: Save Plugin Names
+        id: plugin_names
+        run: echo "::set-output name=matrix::$(cat ./plugins.json)"
     outputs:
-      matrix: ${{ steps.repo-paths.outputs.matrix }}
+      matrix: ${{ steps.plugin_names.outputs.matrix }}
   Test-Repositories:
-    needs: Clone-Repositories
+    needs: List-All-Plugins
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        plugin: ${{ fromJson(needs.Clone-Repositories.outputs.matrix) }}
+        plugin: ${{ fromJson(needs.List-All-Plugins.outputs.matrix) }}
     steps:
-      - name: Restore Cached Repositories
-        uses: actions/cache@v2
+      # checkout repo 
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+      - name: Set Up Python
+        uses: actions/setup-python@v2
         with:
-          path: ./repositories
-          key: repositories
+          python-version: 3.8
+      # setup python with dependencies
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install tox requests GitPython tqdm pandas pkginfo
+      # clone repo of plugin in python script (with input from matrix.plugin)
+      - name: Clone Plugin Repository
+        id: clone-repo
+        run: |
+          echo "::set-output name=repo-path::$(python clone_plugin_repo.py ${{ matrix.plugin }})"
       - name: List Files
-        working-directory: ${{ matrix.plugin }}
+        working-directory: ${{ steps.clone-repo.outputs.repo-path }}
         run: |
           ls .
+      # test repo of plugin (step into working directory and tox)
