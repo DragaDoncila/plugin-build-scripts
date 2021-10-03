@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install tox requests GitPython tqdm pandas pkginfo
+          pip install tox requests GitPython tqdm pandas pkginfo wheel pyopencl
       # clone repo of plugin in python script (with input from matrix.plugin)
       - name: Clone Plugin Repository
         id: clone-repo
