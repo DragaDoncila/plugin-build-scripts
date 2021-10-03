@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         plugin: ${{ fromJson(needs.List-All-Plugins.outputs.matrix) }}
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.8]
       fail-fast: false
     steps:
       # checkout repo 
